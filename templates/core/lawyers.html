@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block head_title %}{% trans "Lawyers" %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-4 mb-4">
+        {% for lawyerprofile in lawyerprofiles %}
+
+        <!-- col-md will form columns when the screen size >= medium -->
+        <div class="col-lg-3 col-md-4 col-sm-6">
+            <section>
+                <!-- Card -->
+                <div class="card text-center">
+
+                    {# To view lawyer profile we are using DetailView on LawyerProfile model. #}
+                    <a href="{% url 'core:lawyer' lawyerprofile.id %}" class="btn">
+                        <!-- Avatar -->
+                        <div class="avatar mx-auto white mt-4">
+                            <img src="{{ lawyerprofile.user.pro_pic.url }}" class="rounded-circle img-fluid" alt="Profile Avatar">
+                        </div>
+
+
+                        <!-- Content -->
+                        <div class="card-body">
+                            <!-- Name -->
+                            <h4 class="card-title">
+                                {{ lawyerprofile.user.get_full_name }}
+                                <!-- Veification icon -->
+                                {% if lawyerprofile.is_verified %}
+                                <i class="far fa-check-circle text-success"></i></i>
+                                {% endif %}
+                            </h4>
+                            <hr>
+                            <div>
+                                <span class="badge badge-info">
+                                    <i class="fas fa-city"></i>
+                                    {{ lawyerprofile.user.address.city }}
+                                </span>
+                                <span class="badge badge-danger">
+                                    <i class="fas fa-user-clock"></i>
+                                    {{ lawyerprofile.experience }} Years
+                                </span>
+                                <span class="badge badge-warning">{{ lawyerprofile.fee }}</span>
+                                <span class="badge badge-secondary">
+                                    <i class="far fa-clock"></i>
+                                    {{ lawyerprofile.time_start|date:'g:i A' }}
+                                    <i class="fas fa-minus"></i>
+                                    {{ lawyerprofile.time_end|date:'g:i A' }}
+                                </span>
+                            </div>
+                            <div>
+                                <!-- Generally the many-to-many field is not iterable.
+                                    Make it iterable by added .all at the end. -->
+                                {% for category in lawyerprofile.categories.all %}
+                                    <span class="badge badge-success">{{ category.name }}</span>
+                                {% endfor %}
+                            </div>
+                            {% if not user.is_lawyer %}
+                                <a href="{% url 'core:appointment_create' lawyerprofile.user.id %}"
+                                    class="btn btn-sm btn-outline-primary" role="button">
+                                    Get Appointment
+                                </a>
+                            {% endif %}
+                        </div>
+                    </a>
+
+                </div>
+                <!-- Card -->
+            </section>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}

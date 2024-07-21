@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block head_title %}
+    {% trans "Lawyer - "|add:user.get_full_name %}
+{% endblock %}
+
+{% block content %}
+<main>
+    <div class="container">
+
+        <div class="row">
+
+            <!-- col-md will form columns when the screen size >= medium -->
+            <div class="col-md-4">
+                <section class="mt-4 mb-4">
+                    <!-- Card -->
+                    <div class="card text-center">
+                        <!-- Avatar -->
+                        <a href="{% url 'users:profile' %}" class="btn">
+                            <div class="avatar mx-auto white mt-4">
+                                <img src="{{ user.pro_pic.url }}" class="rounded-circle img-fluid" alt="Profile Avatar">
+                            </div>
+                        </a>
+
+
+                        <!-- Content -->
+                        <div class="card-body">
+                            <!-- Name -->
+                            <h4 class="card-title">
+                                {{ user.get_full_name }}
+                                <!-- Veification icon -->
+                                {% if user.lawyerprofile.is_verified %}
+                                <i class="far fa-check-circle text-success"></i></i>
+                                {% endif %}
+                            </h4>
+                            <hr>
+                            <span class="badge badge-info">
+                                <i class="fas fa-city"></i>
+                                {{ user.address.city }}
+                            </span>
+                            <span class="badge badge-danger">
+                                <i class="fas fa-user-clock"></i>
+                                {{ user.lawyerprofile.experience }} Years
+                            </span>
+                            <span class="badge badge-warning">{{ user.lawyerprofile.fee }}</span>
+                            <span class="badge badge-secondary">
+                                <i class="far fa-clock"></i>
+                                {{ user.lawyerprofile.time_start }}&nbsp;&minus;&nbsp;{{ user.lawyerprofile.time_end }}
+                            </span>
+                            <p>
+                                <!-- Generally the many-to-many field is not iterable.
+                                    Make it iterable by added .all at the end. -->
+                                {% for category in user.lawyerprofile.categories.all %}
+                                    <span class="badge badge-success">{{ category.name }}</span>
+                                {% endfor %}
+                            </p>
+
+                            <a href="{{user.lawyerprofile.document.url}}" class="btn btn-primary btn-sm">
+                                <i class="far fa-file-alt"></i>
+                                Official Document
+                            </a>
+                        </div>
+                    </div>
+                    <!-- Card -->
+                </section>
+            </div>
+
+            <!-- mt-md-2 will add a top margin when the screen size >= medium -->
+            <div class="col-md-8 mt-md-2">
+
+                {# django-money fields doesn't show errors, thus showing the error manually. #}
+                {% if form.errors %}
+                    {% for error in form.fee.errors %}
+                    <div class="text-center alert alert-dismissible fade show alert-{% if messages.tags %}{{ message.tags }}{% else %}info{% endif %}"
+                        role="alert">
+
+                        {{error}}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <section class="mb-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <legend class="border-bottom mb-4">Profile Info</legend>
+                        {{ form|crispy }}
+                        <button type="submit" class="btn btn-info">{% trans "Update" %}</button>
+                    </form>
+                </section>
+            </div>
+
+        </div>
+
+    </div>
+</main>
+{% endblock %}

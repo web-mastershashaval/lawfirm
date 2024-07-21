@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block head_title %}{% trans "Appointments" %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-4 mb-4">
+        {% for appointment in appointments %}
+
+        <!-- col-md will form columns when the screen size >= medium -->
+        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 mb-4">
+            <section class="text-center">
+                <!-- Card -->
+                <div class="card">
+
+                    <!-- Content -->
+                    <div class="card-body">
+                        <!-- Name -->
+                        <h6 class="card-title">
+                            {# For customer, show lawyer's name #}
+                            {% if user.is_customer %}
+                                <i class="fas fa-layer-group"></i>
+                                {{ appointment.lawyer.get_full_name }}
+                                <!-- Veification icon -->
+                                {% if appointment.lawyer.lawyerprofile.is_verified %}
+                                    <i class="far fa-check-circle text-success"></i></i>
+                                {% endif %}
+                            {# For lawyer, show customer's name #}
+                            {% elif user.is_lawyer %}
+                                <i class="fas fa-user"></i>
+                                {{ appointment.customer.get_full_name }}
+                            {# For manager, show both names #}
+                            {% elif user.is_manager %}
+                                <i class="fas fa-layer-group"></i>
+                                {{ appointment.lawyer.get_full_name }}
+                                <!-- Veification icon -->
+                                {% if appointment.lawyer.lawyerprofile.is_verified %}
+                                    <i class="far fa-check-circle text-success"></i></i>
+                                {% endif %}
+                                <br>
+                                <i class="fas fa-user"></i>
+                                {{ appointment.customer.get_full_name }}
+                            {% endif %}
+
+
+                        </h4>
+                        <hr>
+
+                        <div>{{ appointment.lawyer.address }}</div> <hr>
+                        <div>
+                            <span class="badge badge-info">
+                                <i class="far fa-clock"></i>
+                                {{ appointment.date|date:'d-m-Y' }} at {{ appointment.time|date:'g:i A' }}
+                            </span>
+                        </div>
+
+                        <div>
+                            <span class="badge badge-secondary">
+                                <i class="fas fa-hashtag"></i>
+                                {{ appointment.id }}
+                            </span>
+
+                            {% if appointment.is_paid %}
+                                <span class="badge badge-success">Paid</span>
+                            {% else %}
+                                <span class="badge badge-danger">Not Paid</span>
+                            {% endif %}
+                            <span class="badge badge-warning">{{ appointment.fee }}</span>
+
+                            {% if appointment.is_cancelled_by_lawyer %}
+                                <span class="badge badge-danger">Cancelled by Lawyer</span>
+                            {% elif appointment.is_cancelled_by_customer %}
+                                <span class="badge badge-warning">Cancelled by Customer</span>
+                            {% elif appointment.is_cancelled_by_manager %}
+                                <span class="badge badge-danger">Cancelled by Manager</span>
+                            {% elif appointment.is_accepted %}
+                                <span class="badge badge-success">Accepted</span>
+                            {% else %}
+                                <span class="badge badge-warning">Pending</span>
+                            {% endif %}
+
+                            {% if appointment.is_completed %}
+                                <span class="badge badge-success">Completed</span>
+                            {% else %}
+                                <span class="badge badge-secondary">Not Completed</span>
+                            {% endif %}
+                        </div>
+                        <hr>
+
+                        <div>
+                            {{ appointment.message }}
+                        </div>
+
+                        <div class="text-center mt-2">
+                            {% if user.is_lawyer and not appointment.is_accepted%}
+                                <a href="{% url 'core:appointment_accept' appointment.id %}"
+                                    class="btn btn-sm btn-outline-primary" role="button">
+                                    Accept
+                                </a>
+                            {% endif %}
+
+                            {% if not appointment.is_cancelled%}
+                                <a href="{% url 'core:appointment_cancel' appointment.id %}"
+                                    class="btn btn-sm btn-outline-danger" role="button">
+                                    Cancel
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+                <!-- Card -->
+            </section>
+        </div>
+
+        {# When the list is empty #}
+        {% empty %}
+        <div class="col-12">
+            <h4 class="text-center">
+                No Appointments Yet.
+            </h4>
+        </div>
+
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}

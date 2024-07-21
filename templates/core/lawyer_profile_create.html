@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block head_title %}{% trans "Create Lawyer Profile" %}{% endblock %}
+
+{% block content %}
+<main>
+    <div class="container">
+
+        {# django-money fields doesn't show errors, thus showing the error manually. #}
+        {% if form.errors %}
+        {% for error in form.fee.errors %}
+            <div class="text-center alert alert-dismissible fade show alert-{% if messages.tags %}{{ message.tags }}{% else %}info{% endif %}"
+                role="alert">
+
+                {{error}}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <section class="mt-4 mb-4">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <legend class="border-bottom mb-4">Create Lawyer Profile</legend>
+                {{ form|crispy }}
+                <button type="submit" class="btn btn-info">{% trans "Submit" %}</button>
+            </form>
+        </section>
+
+    </div>
+</main>
+{% endblock %}
